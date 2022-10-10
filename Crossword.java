@@ -40,7 +40,6 @@ public final class Crossword implements WordPuzzleInterface {
 		}else{
 			col++;
 		}
-		// System.out.println("row: "+row+" col:"+col);
 		char character = emptyBoard[row][col];
 		if(character == '+'){
 			for(char cur = 'a'; cur <= 'z'; cur++){
@@ -50,10 +49,12 @@ public final class Crossword implements WordPuzzleInterface {
 				boolean isColPrefix = isPrefix(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
 				boolean isRowWord = isWord(rowStr[row], rowStr[row].lastIndexOf("-") + 1, rowStr[row].length() - 1, dictionary);
 				boolean isColWord = isWord(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
-				if ((col < emptyBoard[0].length - 1 && !isRowPrefix)
-						|| (col == emptyBoard[0].length - 1 && !isRowWord)
-						|| (row < emptyBoard.length - 1 && !isColPrefix)
-						|| (row == emptyBoard.length - 1 && !isColWord)){
+				boolean isRowEnd = (col == emptyBoard[0].length - 1) || (emptyBoard[row][col + 1] == '-');
+				boolean isColEnd = (row == emptyBoard.length - 1) || (emptyBoard[row + 1][col] == '-');
+				if ((!isRowEnd && !isRowPrefix)
+						|| (isRowEnd && !isRowWord)
+						|| (!isColEnd && !isColPrefix)
+						|| (isColEnd && !isColWord)){
 					rowStr[row].deleteCharAt(rowStr[row].length() - 1);
 					colStr[col].deleteCharAt(colStr[col].length() - 1);
 					continue;
@@ -69,15 +70,6 @@ public final class Crossword implements WordPuzzleInterface {
 				}
 			}
 		}else {
-			if(character == '-'){
-				boolean isRowWord = isWord(rowStr[row], rowStr[row].lastIndexOf("-") + 1, rowStr[row].length() - 1, dictionary);
-				boolean isColWord = isWord(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
-
-				if((col > 0 && !isRowWord)
-						|| (row > 0 && !isColWord))
-					return null;
-			}
-
 			rowStr[row].append(character);
 			colStr[col].append(character);
 
@@ -86,15 +78,18 @@ public final class Crossword implements WordPuzzleInterface {
 				boolean isColPrefix = isPrefix(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
 				boolean isRowWord = isWord(rowStr[row], rowStr[row].lastIndexOf("-") + 1, rowStr[row].length() - 1, dictionary);
 				boolean isColWord = isWord(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
+				boolean isRowEnd = (col == emptyBoard[0].length - 1) || (emptyBoard[row][col + 1] == '-');
+				boolean isColEnd = (row == emptyBoard.length - 1) || (emptyBoard[row + 1][col] == '-');
 
-				if ((col < emptyBoard[0].length - 1 && !isRowPrefix)
-						|| (col == emptyBoard[0].length - 1 && !isRowWord)
-						|| (row < emptyBoard.length - 1 && !isColPrefix)
-						|| (row == emptyBoard.length - 1 && !isColWord)){
+				if ((!isRowEnd && !isRowPrefix)
+						|| (isRowEnd && !isRowWord)
+						|| (!isColEnd && !isColPrefix)
+						|| (isColEnd && !isColWord)){
 					rowStr[row].deleteCharAt(rowStr[row].length() - 1);
 					colStr[col].deleteCharAt(colStr[col].length() - 1);
 					return null;
 				}
+
 			}
 
 			filledBoard[row][col] = character;
@@ -147,21 +142,25 @@ public final class Crossword implements WordPuzzleInterface {
     	for(int i=0; i<emptyBoard.length; i++){
 			for(int j=0; j<emptyBoard[0].length; j++) {
 				char character = emptyBoard[i][j];
+
 				if(character == '+'){
+					if(filledBoard[i][j] == '-'){
+						return false;
+					}
 					rowStr[i].append(filledBoard[i][j]);
 					colStr[j].append(filledBoard[i][j]);
 				}else if(character == '-') {
 					if(filledBoard[i][j] != character){
-					//	System.out.println("1");
+						//System.out.println("1");
 						return false;
 					}
 
-					if(j > 0 && rowStr[i].length() > 0 && !isWord(rowStr[i], rowStr[i].lastIndexOf("-") + 1, rowStr[i].length() - 1, dictionary)){
-					//	System.out.println("2 i:" + i +" j:" + j);
+					if(j > 0 && rowStr[i].length() > 0 && rowStr[i].lastIndexOf("-") < rowStr[i].length() - 1 && !isWord(rowStr[i], rowStr[i].lastIndexOf("-") + 1, rowStr[i].length() - 1, dictionary)){
+						//System.out.println("2 i:" + i +" j:" + j);
 						return false;
 					}
-					if(i > 0 && colStr[j].length() > 0 && !isWord(colStr[j], colStr[j].lastIndexOf("-") + 1, colStr[j].length() - 1, dictionary)){
-					//	System.out.println("3");
+					if(i > 0 && colStr[j].length() > 0 && colStr[j].lastIndexOf("-") < colStr[j].length() - 1 && !isWord(colStr[j], colStr[j].lastIndexOf("-") + 1, colStr[j].length() - 1, dictionary)){
+						//System.out.println("3");
 						return false;
 					}
 
@@ -169,7 +168,7 @@ public final class Crossword implements WordPuzzleInterface {
 					colStr[j].append(character);
 				}else{
 					if(filledBoard[i][j] != character){
-					//	System.out.println("4");
+						//System.out.println("4");
 						return false;
 					}
 
@@ -178,12 +177,12 @@ public final class Crossword implements WordPuzzleInterface {
 				}
 
 				if(j == emptyBoard[0].length - 1 && rowStr[i].lastIndexOf("-") < rowStr[i].length() - 1 && !isWord(rowStr[i], rowStr[i].lastIndexOf("-") + 1, rowStr[i].length() - 1, dictionary)){
-				//	System.out.println("5");
+					//System.out.println("5");
 					return false;
 				}
 
 				if(i == emptyBoard.length - 1 && colStr[j].lastIndexOf("-") < colStr[j].length() - 1 && !isWord(colStr[j], colStr[j].lastIndexOf("-") + 1, colStr[j].length() - 1, dictionary)){
-				//	System.out.println("6");
+					//System.out.println("6");
 					return false;
 				}
 			}
