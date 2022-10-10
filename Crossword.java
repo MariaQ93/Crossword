@@ -42,19 +42,38 @@ public final class Crossword implements WordPuzzleInterface {
 		}
 		char character = emptyBoard[row][col];
 		if(character == '+'){
+			//System.out.println("row:" + row + " col:"+col +" rowStr:"+rowStr[row].toString() + " colStr:"+colStr[col].toString());
 			for(char cur = 'a'; cur <= 'z'; cur++){
 				rowStr[row].append(cur);
 				colStr[col].append(cur);
+
+				int newRow = row;
+				while(newRow < emptyBoard.length - 1 && emptyBoard[newRow + 1][col] != '+' && emptyBoard[newRow + 1][col] != '-'){
+					colStr[col].append(emptyBoard[newRow + 1][col]);
+					newRow++;
+				}
+				int newCol = col;
+				while(newCol < emptyBoard[0].length - 1 && emptyBoard[row][newCol + 1] != '+' && emptyBoard[row][newCol + 1] != '-'){
+					rowStr[row].append(emptyBoard[row][newCol + 1]);
+					newCol++;
+				}
 				boolean isRowPrefix = isPrefix(rowStr[row], rowStr[row].lastIndexOf("-") + 1, rowStr[row].length() - 1, dictionary);
 				boolean isColPrefix = isPrefix(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
 				boolean isRowWord = isWord(rowStr[row], rowStr[row].lastIndexOf("-") + 1, rowStr[row].length() - 1, dictionary);
 				boolean isColWord = isWord(colStr[col], colStr[col].lastIndexOf("-") + 1, colStr[col].length() - 1, dictionary);
-				boolean isRowEnd = (col == emptyBoard[0].length - 1) || (emptyBoard[row][col + 1] == '-');
-				boolean isColEnd = (row == emptyBoard.length - 1) || (emptyBoard[row + 1][col] == '-');
+				boolean isRowEnd = (newCol == emptyBoard[0].length - 1) || (emptyBoard[row][newCol + 1] == '-');
+				boolean isColEnd = (newRow == emptyBoard.length - 1) || (emptyBoard[newRow + 1][col] == '-');
+
+				if(newRow > row)
+					colStr[col].delete(row + 1, colStr[col].length());
+				if(newCol > col)
+					rowStr[row].delete(col + 1, rowStr[row].length());
+
 				if ((!isRowEnd && !isRowPrefix)
 						|| (isRowEnd && !isRowWord)
 						|| (!isColEnd && !isColPrefix)
 						|| (isColEnd && !isColWord)){
+
 					rowStr[row].deleteCharAt(rowStr[row].length() - 1);
 					colStr[col].deleteCharAt(colStr[col].length() - 1);
 					continue;
