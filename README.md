@@ -1,4 +1,4 @@
-#Assignment 1 Wrtire-Up
+# Assignment 1 Wrtire-Up
 
 ## Problem Solving Processes
 `recursiveMethod()`<br />
