@@ -1,5 +1,3 @@
-Wrtire-Up
-
 ## Problem Solving Processes
 `recursiveMethod()`<br />
 - The purpose of this function is to use recursion to find the letters that should be placed in each square and are valid. 
